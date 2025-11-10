@@ -5,17 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Eventify | Login</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
-body{background:linear-gradient(135deg,#090979,#3a0ca3,#4361ee);height:100vh;display:flex;justify-content:center;align-items:center;color:white}
-.login-container{background:rgba(0,0,0,0.7);padding:40px;border-radius:15px;width:300px;text-align:center;box-shadow:0 0 15px rgba(0,0,0,0.5)}
-h2{margin-bottom:20px;color:#ffd700}
-input{width:100%;padding:10px;margin:10px 0;border:none;border-radius:6px;background:#1b1b2b;color:white}
-button{width:100%;padding:10px;background:#6c63ff;border:none;border-radius:8px;color:white;font-weight:bold;cursor:pointer;transition:0.3s}
+body{background:linear-gradient(135deg,#090979,#3a0ca3,#4361ee);height:100vh;display:flex;justify-content:center;align-items:center;color:white;font-family:'Poppins',sans-serif}
+.login{background:rgba(0,0,0,0.7);padding:40px;border-radius:15px;width:300px;text-align:center}
+input,button{width:100%;padding:10px;margin:10px 0;border:none;border-radius:6px}
+button{background:#6c63ff;color:white;font-weight:bold;cursor:pointer}
 button:hover{background:#574bff}
 </style>
 </head>
 <body>
-<div class="login-container">
+<div class="login">
   <h2>Welcome to Eventify</h2>
   <input type="email" id="email" placeholder="Email" required>
   <input type="password" id="password" placeholder="Password" required>
@@ -28,9 +26,7 @@ function login(){
   if(email && pass){
     localStorage.setItem("userEmail", email);
     window.location.href="main.html";
-  }else{
-    alert("Please enter email and password");
-  }
+  }else alert("Please enter email and password");
 }
 </script>
 </body>
