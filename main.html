@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eventify | Explore Events</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+body{background-color:#0d0d1b;color:#fff;min-height:100vh}
+nav{display:flex;justify-content:space-between;align-items:center;background:#1a1a2e;padding:15px 40px;box-shadow:0 2px 10px rgba(0,0,0,0.5)}
+nav h1{color:#a855f7;font-size:24px;font-weight:bold}
+nav .btns{display:flex;gap:10px}
+nav button{background:#6c63ff;border:none;padding:8px 16px;color:#fff;border-radius:8px;cursor:pointer;transition:0.3s}
+nav button:hover{background:#574bff}
+.container{padding:40px}
+.filters{display:flex;gap:10px;margin-bottom:30px}
+select,input[type="date"]{background:#1e1e2f;color:white;border:none;padding:10px 14px;border-radius:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:25px}
+.card{background:#1e1e2f;border-radius:14px;overflow:hidden;transition:0.3s;box-shadow:0 0 15px rgba(0,0,0,0.4)}
+.card:hover{transform:translateY(-5px) scale(1.02);box-shadow:0 0 25px rgba(168,85,247,0.3)}
+.card img{width:100%;height:180px;object-fit:cover}
+.card-content{padding:15px}
+.card-content h3{font-size:18px;margin-bottom:5px;color:#fff}
+.card-content p{color:#aaa;font-size:14px;margin-bottom:5px}
+.price{color:#a855f7;font-weight:bold;margin:5px 0}
+.card button{background:#a855f7;border:none;color:white;padding:8px 14px;border-radius:6px;margin-top:8px;cursor:pointer}
+.card button:hover{background:#7c3aed}
+.detail{display:none;padding:40px;text-align:center;animation:fadeIn 0.4s ease}
+.detail img{width:80%;max-width:600px;border-radius:12px;margin-bottom:20px;box-shadow:0 0 20px rgba(168,85,247,0.3)}
+.detail h2{margin-bottom:10px;color:#fff}
+.detail p{max-width:600px;margin:10px auto;color:#bbb}
+.detail .price{font-size:18px;margin:10px;color:#a855f7}
+.detail button{background:#6c63ff;border:none;padding:10px 20px;border-radius:8px;color:white;margin:10px;cursor:pointer}
+.detail button:hover{background:#574bff}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<nav>
+  <h1>Eventify</h1>
+  <div class="btns">
+    <button onclick="viewBookings()">View My Bookings</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="container" id="mainContainer">
+  <h2 style="margin-bottom:20px;">Popular Events</h2>
+  <div class="filters">
+    <select id="cityFilter">
+      <option value="All">All Cities</option>
+      <option value="Bengaluru">Bengaluru</option>
+      <option value="Pune">Pune</option>
+      <option value="Kolkata">Kolkata</option>
+      <option value="Mumbai">Mumbai</option>
+      <option value="Chennai">Chennai</option>
+      <option value="Delhi">Delhi</option>
+      <option value="Goa">Goa</option>
+    </select>
+    <input type="date" id="dateFilter">
+  </div>
+  <div id="eventGrid" class="grid"></div>
+</div>
+
+<div id="eventDetail" class="detail"></div>
+
+<script>
+// ------------------ EVENTS DATA --------------------
+const events = [
+  {id:1,title:"Indie Rock Night",city:"Bengaluru",date:"2025-10-31",price:499,venue:"Blue Orchid Club",image:"https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2?auto=format&fit=crop&w=800&q=60",description:"An electrifying night of indie rock bands, bright lights, and pure energy."},
+  {id:2,title:"Startup Workshop",city:"Pune",date:"2025-11-04",price:299,venue:"CoWork Studio",image:"https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=60",description:"Hands-on workshop on MVP and pitching."},
+  {id:3,title:"Classical Evening",city:"Kolkata",date:"2025-11-07",price:799,venue:"Heritage Hall",image:"https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=800&q=60",description:"An evening of classical maestros."},
+  {id:4,title:"Food Carnival",city:"Mumbai",date:"2025-11-02",price:199,venue:"Seaside Market",image:"https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=60",description:"Taste the best street food and desserts."},
+  {id:5,title:"Local Football Match",city:"Chennai",date:"2025-10-30",price:149,venue:"City Stadium",image:"https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=60",description:"Support local teams and enjoy the match."},
+  {id:6,title:"Tech Conference 2025",city:"Delhi",date:"2025-11-09",price:999,venue:"TechPark Arena",image:"https://images.unsplash.com/photo-1522199755839-a2bacb67c546?auto=format&fit=crop&w=800&q=60",description:"India’s biggest technology conference."},
+  {id:7,title:"Art & Craft Exhibition",city:"Pune",date:"2025-11-12",price:249,venue:"City Gallery",image:"https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=60",description:"Explore artisans and handcrafted art."},
+  {id:8,title:"Beach Music Fest",city:"Goa",date:"2025-12-01",price:599,venue:"Miramar Beach",image:"https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=800&q=60",description:"Party by the waves with live DJs!"}
+];
+
+// ------------------ DOM ELEMENTS --------------------
+const grid=document.getElementById('eventGrid');
+const detail=document.getElementById('eventDetail');
+const main=document.getElementById('mainContainer');
+const cityFilter=document.getElementById('cityFilter');
+const dateFilter=document.getElementById('dateFilter');
+
+// ------------------ EVENT DISPLAY --------------------
+function showEvents(list){
+  grid.innerHTML="";
+  list.forEach(e=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <img src="${e.image}">
+      <div class="card-content">
+        <h3>${e.title}</h3>
+        <p>${e.venue} • ${e.city}</p>
+        <p>Date: ${e.date}</p>
+        <p class="price">₹${e.price}</p>
+        <button onclick="viewEvent(${e.id})">View</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function applyFilters(){
+  let filtered=events;
+  const city=cityFilter.value;
+  const date=dateFilter.value;
+  if(city!=="All")filtered=filtered.filter(e=>e.city===city);
+  if(date)filtered=filtered.filter(e=>e.date===date);
+  showEvents(filtered);
+}
+cityFilter.addEventListener("change",applyFilters);
+dateFilter.addEventListener("change",applyFilters);
+
+function viewEvent(id){
+  const e=events.find(ev=>ev.id===id);
+  main.style.display="none";
+  detail.style.display="block";
+  detail.innerHTML=`
+    <img src="${e.image}">
+    <h2>${e.title}</h2>
+    <p>${e.venue} • ${e.city} • ${e.date}</p>
+    <p>${e.description}</p>
+    <p class="price">₹${e.price}</p>
+    <button onclick="bookEvent('${e.title}')">Book Now</button>
+    <button onclick="goBack()">Back</button>`;
+}
+
+function goBack(){
+  detail.style.display="none";
+  main.style.display="block";
+}
+
+function logout(){
+  localStorage.removeItem("userEmail");
+  window.location.href="login.html";
+}
+
+function bookEvent(title){
+  const userEmail = localStorage.getItem("userEmail") || prompt("Enter your email:");
+  fetch("http://127.0.0.1:5000/api/book",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({eventTitle:title,userEmail})
+  }).then(r=>r.json()).then(d=>{
+    alert("🎟️ Booking confirmed and saved in MongoDB!");
+  }).catch(e=>{
+    alert("Booking failed — backend not connected.");
+  });
+}
+
+// ------------------ VIEW BOOKINGS --------------------
+function viewBookings(){
+  const userEmail = localStorage.getItem("userEmail");
+  fetch(`http://127.0.0.1:5000/api/bookings?userEmail=${userEmail}`)
+    .then(res=>res.json())
+    .then(data=>{
+      main.style.display="none";
+      detail.style.display="block";
+      detail.innerHTML=`
+        <h2>📅 My Bookings</h2>
+        <div style="text-align:left;max-width:600px;margin:auto;">
+          ${data.length===0? "<p>No bookings found.</p>" :
+            data.map(b=>`
+              <div style="background:#1e1e2f;padding:10px;margin:10px 0;border-radius:8px;">
+                <strong>${b.eventTitle}</strong><br>
+                <small>${new Date(b.date).toLocaleString()}</small><br>
+                <small>${b.userEmail}</small>
+              </div>
+            `).join("")}
+        </div>
+        <button onclick="goBack()">Back</button>`;
+    })
+    .catch(err=>{
+      console.error(err);
+      alert("Failed to fetch bookings!");
+    });
+}
+
+showEvents(events);
+</script>
+</body>
+</html>
